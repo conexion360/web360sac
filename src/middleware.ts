@@ -29,8 +29,9 @@ export async function middleware(request: NextRequest) {
     '/api/nosotros',
     '/api/redes',
     '/api/configuracion',
-    '/api/mensajes'
-    // Nota: Quité '/api/upload' de aquí porque ya lo manejamos explícitamente arriba
+    '/api/mensajes',
+    '/api/debug/files', // ← AGREGADO: Permitir debug sin autenticación
+    '/api/debug', // ← AGREGADO: Permitir todos los endpoints de debug
   ];
 
   // Bypass para upload durante desarrollo (esto ya no es necesario por el bloque de arriba pero lo dejamos por compatibilidad)

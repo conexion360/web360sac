@@ -1,6 +1,6 @@
 [build]
 builder = "NIXPACKS"
-buildCommand = "npm install && npm run build"
+buildCommand = "npm install && npm run build && npm run setup-folders"
 
 [deploy]
 startCommand = "npm start"
@@ -11,3 +11,8 @@ restartPolicyType = "ON_FAILURE"
 [postgres]
 name = "conexion360-db"
 version = "15"
+
+# Variables de entorno para Railway
+[variables]
+NODE_ENV = "production"
+HOSTNAME = "0.0.0.0"

@@ -8,13 +8,8 @@ const bcrypt = require('bcrypt');
 require('dotenv').config();
 
 const dbConfig = {
-    user: process.env.DB_USER || 'postgres',
-    password: process.env.DB_PASSWORD || '147ABC55',
-    host: process.env.DB_HOST || 'localhost',
-    port: parseInt(process.env.DB_PORT || '9134'),
-    database: process.env.DB_NAME || 'conexion360',
-    // No usar SSL para desarrollo local
-    ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
+    connectionString: 'postgresql://postgres:NiLNvvcgSswANsKgbTuQkxNbiApzYaVV@trolley.proxy.rlwy.net:19688/railway',
+    ssl: { rejectUnauthorized: false }
 };
 
 console.log('Intentando conectar a la base de datos con configuración:', {

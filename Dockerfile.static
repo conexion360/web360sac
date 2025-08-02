@@ -1,0 +1,19 @@
+FROM node:18-alpine
+
+WORKDIR /app
+
+# Copiar archivos necesarios
+COPY package.json package-lock.json* ./
+COPY static-server.js ./
+COPY public ./public
+
+# Instalar express (solo lo necesario para el servidor estático)
+RUN npm install express --no-save
+
+# Configurar permisos adecuados
+RUN chmod -R 755 ./public
+
+EXPOSE 3000
+ENV PORT 3000
+
+CMD ["node", "static-server.js"]

@@ -22,9 +22,17 @@ ENV NODE_ENV production
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 
+# Copiar archivos públicos y configurar permisos
 COPY --from=builder /app/public ./public
+RUN chown -R nextjs:nodejs ./public && chmod -R 755 ./public
+
+# Copiar servidor y archivos de Next.js
+COPY --from=builder /app/server.js ./server.js
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+
+# Instalar express explícitamente
+RUN npm install express --no-save
 
 USER nextjs
 EXPOSE 3000

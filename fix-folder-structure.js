@@ -1,4 +1,4 @@
-// fix-folder-structure.js
+// enhanced-fix-folder-structure.js
 const fs = require('fs');
 const path = require('path');
 
@@ -24,24 +24,80 @@ function createPlaceholderFile(filePath, content = '') {
 
 // Ruta base del proyecto
 const basePath = process.cwd();
+console.log("Directorio base del proyecto:", basePath);
 
 // Estructura de carpetas a verificar/crear
 const folders = [
   path.join(basePath, 'public'),
   path.join(basePath, 'public', 'imagenes'),
   path.join(basePath, 'public', 'musicas'),
-  path.join(basePath, 'public', 'imagenes', 'eventos')
+  path.join(basePath, 'public', 'imagenes', 'eventos'),
+  path.join(basePath, 'public', 'imagenes', 'hero'),
+  path.join(basePath, 'public', 'imagenes', 'covers'),
+  path.join(basePath, 'public', 'imagenes', 'generos'),
+  path.join(basePath, 'public', 'imagenes', 'galeria'),
+  path.join(basePath, 'public', 'imagenes', 'nosotros')
 ];
 
-// Crear un placeholder para el logo si no existe
-const placeholderLogoContent = `
-<!-- Si ves este mensaje, es porque el archivo conexion_logo.png no existe -->
-<!-- Debes colocar una imagen de logo en esta ruta -->
-`;
+// Crear placeholders para diferentes elementos del sitio
+const placeholderContents = {
+  logo: `
+<!-- Archivo placeholder para el logo -->
+<!-- Reemplazar con una imagen real -->
+<!-- El logo debe tener un tamaño aproximado de 200x64px -->
+  `,
+  heroImage: `
+<!-- Archivo placeholder para imágenes del carrusel hero -->
+<!-- Las imágenes deben tener tamaños:
+     - Desktop: 1920x1080px
+     - Mobile: 768x1024px -->
+  `,
+  musicPlaceholder: `
+<!-- Archivo placeholder para canciones -->
+<!-- Sube archivos MP3 a esta carpeta -->
+<!-- Los nombres deben coincidir con los registrados en la base de datos -->
+  `,
+  readme: `
+# Carpetas para contenido dinámico
 
-// Archivos a verificar/crear
+Este directorio contiene los archivos estáticos que se gestionan a través del panel de administración.
+
+## Estructura:
+
+- /imagenes - Todas las imágenes del sitio
+  - /hero - Imágenes para el carrusel principal
+  - /eventos - Fotos de eventos para la galería
+  - /covers - Carátulas de canciones
+  - /generos - Imágenes para géneros musicales
+  - /nosotros - Imágenes para la sección "Sobre Nosotros"
+  
+- /musicas - Archivos de audio en formato MP3
+
+## Importante:
+
+No borres estas carpetas. Todos los archivos subidos a través del panel de administración
+se guardarán en estas ubicaciones.
+  `
+};
+
+// Crear archivos placeholder importantes
 const files = [
-  // Puedes agregar cualquier archivo que necesites verificar aquí
+  {
+    path: path.join(basePath, 'public', 'README.md'),
+    content: placeholderContents.readme
+  },
+  {
+    path: path.join(basePath, 'public', 'musicas', 'README.md'),
+    content: placeholderContents.musicPlaceholder
+  },
+  {
+    path: path.join(basePath, 'public', 'imagenes', 'logo-placeholder.md'),
+    content: placeholderContents.logo
+  },
+  {
+    path: path.join(basePath, 'public', 'imagenes', 'hero', 'hero-placeholder.md'),
+    content: placeholderContents.heroImage
+  }
 ];
 
 console.log('Verificando estructura de carpetas del proyecto...');
@@ -56,9 +112,41 @@ files.forEach(file => {
   createPlaceholderFile(file.path, file.content || '');
 });
 
+// Crear un archivo MP3 de muestra si no existe ninguno
+const sampleMp3Dir = path.join(basePath, 'public', 'musicas');
+if (fs.existsSync(sampleMp3Dir)) {
+  const mp3Files = fs.readdirSync(sampleMp3Dir).filter(file => file.endsWith('.mp3'));
+
+  if (mp3Files.length === 0) {
+    console.log('\nNo se encontraron archivos MP3 en la carpeta musicas');
+    console.log('Para que el reproductor funcione correctamente, debes:');
+    console.log('1. Subir archivos MP3 a la carpeta /public/musicas');
+    console.log('2. Registrar estos archivos en la base de datos usando el panel de administración');
+    console.log('3. Marcar los archivos como "reproducible_web" y/o "destacado" para que aparezcan en el reproductor');
+  }
+}
+
 console.log('\nInstrucciones importantes:');
-console.log('1. Asegúrate de colocar tu archivo conexion_logo.png en la carpeta /public/imagenes/');
-console.log('2. Si estás viendo errores de carga de imágenes, verifica que los archivos estén en las rutas correctas');
-console.log('3. Para resolver el problema de mensajes.tsx, reemplaza el archivo con la versión corregida');
+console.log('1. Debes colocar tu archivo conexion_logo.png en la carpeta /public/imagenes/');
+console.log('2. Usa el panel de administración para gestionar todo el contenido del sitio');
+console.log('3. Antes de iniciar el proyecto, asegúrate de que la base de datos esté configurada correctamente');
 
 console.log('\nEstructura de carpetas verificada y corregida.');
+
+// Prueba de permisos de escritura
+console.log('\nVerificando permisos de escritura en carpetas importantes:');
+folders.forEach(folder => {
+  if (fs.existsSync(folder)) {
+    try {
+      const testFile = path.join(folder, '.write-test-' + Date.now());
+      fs.writeFileSync(testFile, 'Test');
+      fs.unlinkSync(testFile);
+      console.log(`✅ La carpeta tiene permisos de escritura: ${folder}`);
+    } catch (error) {
+      console.log(`❌ ERROR: La carpeta NO tiene permisos de escritura: ${folder}`);
+      console.log(`   Detalle del error: ${error.message}`);
+    }
+  }
+});
+
+console.log('\nVerificación completa.');

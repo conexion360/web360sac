@@ -9,6 +9,10 @@ const nextConfig = {
     // Desactiva la verificación de TypeScript durante la compilación
     ignoreBuildErrors: true,
   },
+  // Configura archivos estáticos sin optimizar
+  images: {
+    unoptimized: true,
+  },
 };
 
 module.exports = nextConfig;

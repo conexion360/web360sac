@@ -12,8 +12,13 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
+  // Permitir explícitamente las subidas sin autenticación tanto en desarrollo como en producción
+  if (path === '/api/upload' || path.startsWith('/api/upload')) {
+    console.log("Middleware: Permitiendo explícitamente subidas sin verificación de autenticación");
+    return NextResponse.next();
+  }
+
   // Otras rutas públicas que no necesitan autenticación
-  // Añade la ruta de upload a las rutas públicas
   const publicPaths = [
     '/api/db-check',
     '/api/test-db',
@@ -24,11 +29,11 @@ export async function middleware(request: NextRequest) {
     '/api/nosotros',
     '/api/redes',
     '/api/configuracion',
-    '/api/mensajes',
-    '/api/upload'  // Añadido para permitir subidas sin autenticación
+    '/api/mensajes'
+    // Nota: Quité '/api/upload' de aquí porque ya lo manejamos explícitamente arriba
   ];
 
-  // Bypass para upload durante desarrollo
+  // Bypass para upload durante desarrollo (esto ya no es necesario por el bloque de arriba pero lo dejamos por compatibilidad)
   const uploadPath = '/api/upload';
   const isDevEnvironment = process.env.NODE_ENV === 'development';
 

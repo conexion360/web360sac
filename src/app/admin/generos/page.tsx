@@ -30,19 +30,11 @@ export default function GenerosAdmin() {
             'Authorization': `Bearer ${localStorage.getItem('adminToken')}`
           }
         });
-<<<<<<< HEAD
 
         if (!response.ok) {
           throw new Error('Error al cargar los géneros');
         }
 
-=======
-        
-        if (!response.ok) {
-          throw new Error('Error al cargar los géneros');
-        }
-        
->>>>>>> a6196d595eb927846a3f58427564aeea98536b3b
         const data = await response.json();
         setGeneros(data);
       } catch (error) {
@@ -52,11 +44,7 @@ export default function GenerosAdmin() {
         setLoading(false);
       }
     };
-<<<<<<< HEAD
 
-=======
-    
->>>>>>> a6196d595eb927846a3f58427564aeea98536b3b
     fetchGeneros();
   }, []);
 
@@ -65,11 +53,7 @@ export default function GenerosAdmin() {
       // Encontrar el género actual
       const genero = generos.find(g => g.id === id);
       if (!genero) return;
-<<<<<<< HEAD
 
-=======
-      
->>>>>>> a6196d595eb927846a3f58427564aeea98536b3b
       // Actualizar en la API
       const response = await fetch(`/api/generos/${id}`, {
         method: 'PUT',
@@ -82,7 +66,6 @@ export default function GenerosAdmin() {
           activo: !genero.activo
         })
       });
-<<<<<<< HEAD
 
       if (!response.ok) {
         throw new Error('Error al actualizar el género');
@@ -93,18 +76,6 @@ export default function GenerosAdmin() {
         genero.id === id ? { ...genero, activo: !genero.activo } : genero
       ));
 
-=======
-      
-      if (!response.ok) {
-        throw new Error('Error al actualizar el género');
-      }
-      
-      // Actualizar el estado local
-      setGeneros(generos.map(genero => 
-        genero.id === id ? { ...genero, activo: !genero.activo } : genero
-      ));
-      
->>>>>>> a6196d595eb927846a3f58427564aeea98536b3b
       setSuccess('Género actualizado correctamente');
       setTimeout(() => setSuccess(''), 3000);
     } catch (error) {
@@ -120,11 +91,7 @@ export default function GenerosAdmin() {
       try {
         const currentGenero = generos[currentIndex];
         const prevGenero = generos[currentIndex - 1];
-<<<<<<< HEAD
 
-=======
-        
->>>>>>> a6196d595eb927846a3f58427564aeea98536b3b
         // Intercambiar órdenes en la API
         await Promise.all([
           fetch(`/api/generos/${currentGenero.id}`, {
@@ -150,22 +117,14 @@ export default function GenerosAdmin() {
             })
           })
         ]);
-<<<<<<< HEAD
 
-=======
-        
->>>>>>> a6196d595eb927846a3f58427564aeea98536b3b
         // Actualizar el estado local
         const newGeneros = [...generos];
         newGeneros[currentIndex] = { ...prevGenero, orden: currentGenero.orden };
         newGeneros[currentIndex - 1] = { ...currentGenero, orden: prevGenero.orden };
         newGeneros.sort((a, b) => a.orden - b.orden);
         setGeneros(newGeneros);
-<<<<<<< HEAD
 
-=======
-        
->>>>>>> a6196d595eb927846a3f58427564aeea98536b3b
         setSuccess('Orden actualizado correctamente');
         setTimeout(() => setSuccess(''), 3000);
       } catch (error) {
@@ -182,11 +141,7 @@ export default function GenerosAdmin() {
       try {
         const currentGenero = generos[currentIndex];
         const nextGenero = generos[currentIndex + 1];
-<<<<<<< HEAD
 
-=======
-        
->>>>>>> a6196d595eb927846a3f58427564aeea98536b3b
         // Intercambiar órdenes en la API
         await Promise.all([
           fetch(`/api/generos/${currentGenero.id}`, {
@@ -212,22 +167,14 @@ export default function GenerosAdmin() {
             })
           })
         ]);
-<<<<<<< HEAD
 
-=======
-        
->>>>>>> a6196d595eb927846a3f58427564aeea98536b3b
         // Actualizar el estado local
         const newGeneros = [...generos];
         newGeneros[currentIndex] = { ...nextGenero, orden: currentGenero.orden };
         newGeneros[currentIndex + 1] = { ...currentGenero, orden: nextGenero.orden };
         newGeneros.sort((a, b) => a.orden - b.orden);
         setGeneros(newGeneros);
-<<<<<<< HEAD
 
-=======
-        
->>>>>>> a6196d595eb927846a3f58427564aeea98536b3b
         setSuccess('Orden actualizado correctamente');
         setTimeout(() => setSuccess(''), 3000);
       } catch (error) {
@@ -247,26 +194,15 @@ export default function GenerosAdmin() {
             'Authorization': `Bearer ${localStorage.getItem('adminToken')}`
           }
         });
-<<<<<<< HEAD
 
-=======
-        
->>>>>>> a6196d595eb927846a3f58427564aeea98536b3b
         if (!response.ok) {
           const data = await response.json();
           throw new Error(data.error || 'Error al eliminar el género');
         }
-<<<<<<< HEAD
 
         // Actualizar el estado local
         setGeneros(generos.filter(genero => genero.id !== id));
 
-=======
-        
-        // Actualizar el estado local
-        setGeneros(generos.filter(genero => genero.id !== id));
-        
->>>>>>> a6196d595eb927846a3f58427564aeea98536b3b
         setSuccess('Género eliminado correctamente');
         setTimeout(() => setSuccess(''), 3000);
       } catch (error: any) {
@@ -282,13 +218,8 @@ export default function GenerosAdmin() {
       <div className="p-6">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-2xl font-bold text-gray-800">Géneros Musicales</h1>
-<<<<<<< HEAD
           <Link
             href="/admin/generos/nuevo"
-=======
-          <Link 
-            href="/admin/generos/nuevo" 
->>>>>>> a6196d595eb927846a3f58427564aeea98536b3b
             className="bg-secondary text-white px-4 py-2 rounded-lg flex items-center space-x-2 hover:bg-secondary-light transition-colors"
           >
             <span className="material-icons-outlined">add</span>
@@ -307,11 +238,7 @@ export default function GenerosAdmin() {
             {success}
           </div>
         )}
-<<<<<<< HEAD
 
-=======
-        
->>>>>>> a6196d595eb927846a3f58427564aeea98536b3b
         {loading ? (
           <div className="flex justify-center items-center py-20">
             <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-secondary"></div>
@@ -348,11 +275,7 @@ export default function GenerosAdmin() {
                     <tr key={genero.id}>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="h-16 w-24 bg-gray-200 rounded overflow-hidden">
-<<<<<<< HEAD
                           <div
-=======
-                          <div 
->>>>>>> a6196d595eb927846a3f58427564aeea98536b3b
                             className="w-full h-full bg-cover bg-center"
                             style={{ backgroundImage: `url(${genero.imagen})` }}
                           ></div>
@@ -373,11 +296,7 @@ export default function GenerosAdmin() {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center space-x-2">
-<<<<<<< HEAD
                           <button
-=======
-                          <button 
->>>>>>> a6196d595eb927846a3f58427564aeea98536b3b
                             onClick={() => handleMoveUp(genero.id)}
                             disabled={genero.orden === 1}
                             className={`p-1 rounded ${genero.orden === 1 ? 'text-gray-300' : 'text-gray-600 hover:bg-gray-100'}`}
@@ -385,11 +304,7 @@ export default function GenerosAdmin() {
                             <span className="material-icons-outlined text-sm">arrow_upward</span>
                           </button>
                           <span className="text-sm text-gray-600">{genero.orden}</span>
-<<<<<<< HEAD
                           <button
-=======
-                          <button 
->>>>>>> a6196d595eb927846a3f58427564aeea98536b3b
                             onClick={() => handleMoveDown(genero.id)}
                             disabled={genero.orden === generos.length}
                             className={`p-1 rounded ${genero.orden === generos.length ? 'text-gray-300' : 'text-gray-600 hover:bg-gray-100'}`}
@@ -405,13 +320,9 @@ export default function GenerosAdmin() {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                         <div className="flex items-center space-x-3">
-<<<<<<< HEAD
                           <button
-=======
-                          <button 
->>>>>>> a6196d595eb927846a3f58427564aeea98536b3b
                             onClick={() => handleToggleActive(genero.id)}
-                            className={`p-1 rounded ${genero.activo ? 'text-red-600 hover:bg-red-50' : 'text-green-600 hover:bg-green-50'}`}
+                            className={`p-1 rounded ${genero.activo ? 'text-green-600' : 'text-red-600'}`}
                             title={genero.activo ? 'Desactivar' : 'Activar'}
                           >
                             <span className="material-icons-outlined">

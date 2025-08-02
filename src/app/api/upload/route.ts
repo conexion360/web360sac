@@ -1,24 +1,21 @@
 // src/app/api/upload/route.ts
 import { NextRequest, NextResponse } from 'next/server';
-import { writeFile, chmod } from 'fs/promises';
-import { join } from 'path';
-import { existsSync, mkdirSync, statSync, readdirSync } from 'fs';
 import { verifyAuth } from '@/lib/auth';
-import sharp from 'sharp'; // Asegúrate de instalar sharp: npm install sharp
-
-// Definir la URL base del servidor estático (si existe)
-const STATIC_SERVER_URL = process.env.STATIC_SERVER_URL || '';
+import { uploadFile } from '@/lib/imagekit';
+import sharp from 'sharp';
 
 export async function POST(request: NextRequest) {
   try {
-    // Verificar la autenticación, pero hacer opcional para permitir cargas públicas si es necesario
+    // Verificar la autenticación (opcional para depuración)
     const auth = await verifyAuth(request);
-
-    // Solo para depuración - comenta esta sección en producción
     console.log("Auth status:", auth.success ? "Autenticado" : "No autenticado");
-    if (!auth.success) {
-      console.log("Auth error:", auth.error);
-      // Permitimos continuar aunque falle la autenticación para fines de depuración
+
+    // En desarrollo, permitir continuar aunque falle la autenticación
+    if (!auth.success && process.env.NODE_ENV === 'production') {
+      return NextResponse.json(
+        { error: 'No autorizado' },
+        { status: 401 }
+      );
     }
 
     // Obtener el formulario con el archivo
@@ -26,8 +23,8 @@ export async function POST(request: NextRequest) {
     const file = formData.get('file') as File;
     const folder = formData.get('folder') as string || 'uploads';
 
-    // Opción para mantener la calidad y tamaño original
-    const quality = parseInt(formData.get('quality') as string || '80');
+    // Opciones de procesamiento
+    const quality = parseInt(formData.get('quality') as string || '85');
     const width = parseInt(formData.get('width') as string || '0');
     const height = parseInt(formData.get('height') as string || '0');
 
@@ -38,67 +35,23 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    console.log(`Procesando archivo: ${file.name} (${file.type})`);
+
     // Verificar si es una imagen
     const mimeType = file.type;
     const isImage = mimeType.startsWith('image/');
 
-    // Estructura de carpetas y permisos
-    console.log("CWD:", process.cwd());
+    // Obtener buffer del archivo
+    const arrayBuffer = await file.arrayBuffer();
+    let fileBuffer = Buffer.from(arrayBuffer);
 
-    // Verificar la carpeta public
-    const publicDir = join(process.cwd(), 'public');
-    if (!existsSync(publicDir)) {
-      console.log(`Creando directorio público: ${publicDir}`);
-      mkdirSync(publicDir, { recursive: true, mode: 0o755 });
-    } else {
-      console.log(`Directorio público existe: ${publicDir}`);
-      // Verificar permisos
-      try {
-        const stat = statSync(publicDir);
-        console.log(`Permisos de directorio público: ${stat.mode.toString(8)}`);
-      } catch (e) {
-        console.error(`Error al verificar permisos: ${e}`);
-      }
-    }
+    // Procesar imagen si es necesario
+    let finalFileName = file.name;
+    let processedBuffer = fileBuffer;
 
-    // Verificar/crear la carpeta imagenes
-    const imagenesDir = join(publicDir, 'imagenes');
-    if (!existsSync(imagenesDir)) {
-      console.log(`Creando directorio imagenes: ${imagenesDir}`);
-      mkdirSync(imagenesDir, { recursive: true, mode: 0o755 });
-    }
-
-    // Directorio específico para la carpeta del tipo de contenido (hero, galeria, etc.)
-    const uploadDir = join(imagenesDir, folder);
-    console.log(`Directorio de carga: ${uploadDir}`);
-
-    if (!existsSync(uploadDir)) {
-      console.log(`Creando directorio: ${uploadDir}`);
-      mkdirSync(uploadDir, { recursive: true, mode: 0o755 });
-    } else {
-      console.log(`El directorio ya existe: ${uploadDir}`);
-      // Listar contenido para depuración
-      try {
-        const files = readdirSync(uploadDir);
-        console.log(`Contenido del directorio (${files.length} archivos):`, files.slice(0, 5));
-      } catch (e) {
-        console.error(`Error al listar directorio: ${e}`);
-      }
-    }
-
-    // Obtener la extensión y nombre original del archivo
-    const originalFilename = file.name;
-    const timestamp = Date.now();
-    const filenameWithoutExt = originalFilename.split('.')[0].replace(/\s+/g, '-');
-
-    // Procesar y guardar el archivo
-    if (isImage && mimeType !== 'image/gif') { // No convertimos GIFs para mantener la animación
-      // Convertir a WebP para imágenes
-      const arrayBuffer = await file.arrayBuffer();
-      const buffer = Buffer.from(arrayBuffer);
-
-      // Configurar sharp para la conversión
-      let sharpInstance = sharp(buffer).webp({ quality });
+    if (isImage && mimeType !== 'image/gif') {
+      // Procesar con Sharp para optimizar antes de subir a ImageKit
+      let sharpInstance = sharp(fileBuffer);
 
       // Redimensionar si se especifican dimensiones
       if (width > 0 || height > 0) {
@@ -110,110 +63,79 @@ export async function POST(request: NextRequest) {
         });
       }
 
-      // Nombre del archivo WebP
-      const webpFilename = `${timestamp}-${filenameWithoutExt}.webp`;
-      const webpFilePath = join(uploadDir, webpFilename);
+      // Convertir a WebP para mejor compresión
+      sharpInstance = sharpInstance.webp({ quality });
 
-      // Guardar como WebP
-      await sharpInstance.toFile(webpFilePath);
+      processedBuffer = await sharpInstance.toBuffer();
 
-      // Establecer permisos de archivo
-      try {
-        await chmod(webpFilePath, 0o644);
-        console.log(`Permisos establecidos para: ${webpFilePath}`);
-      } catch (e) {
-        console.error(`Error al establecer permisos: ${e}`);
-      }
-
-      // URL para acceder al archivo - Usando la URL del servidor estático si está configurada
-      const fileUrl = STATIC_SERVER_URL
-        ? `${STATIC_SERVER_URL}/imagenes/${folder}/${webpFilename}`
-        : `/imagenes/${folder}/${webpFilename}`;
-
-      console.log(`URL de imagen generada: ${fileUrl}`);
-
-      // Verificar que el archivo existe después de la escritura
-      const fileExists = existsSync(webpFilePath);
-      console.log(`Verificación de archivo después de escritura: ${fileExists ? 'Existe' : 'No existe'}`);
-
-      console.log(`Imagen convertida y guardada como WebP: ${fileUrl}`);
-
-      // Crear URL absoluta para pruebas
-      const host = request.headers.get('host') || 'localhost';
-      const protocol = host.includes('localhost') ? 'http' : 'https';
-      const absoluteUrl = `${protocol}://${host}${fileUrl}`;
-
-      return NextResponse.json({
-        success: true,
-        url: fileUrl,
-        absoluteUrl,
-        filename: webpFilename,
-        originalFilename: originalFilename,
-        format: 'webp',
-        fileExists,
-        absolutePath: webpFilePath,
-        size: fileExists ? statSync(webpFilePath).size : 0
-      });
-    } else {
-      // Para archivos que no son imágenes o son GIFs, guardamos sin convertir
-      const arrayBuffer = await file.arrayBuffer();
-      const buffer = Buffer.from(arrayBuffer);
-
-      // Generar un nombre de archivo único
-      const fileExt = originalFilename.split('.').pop() || '';
-      const filename = `${timestamp}-${filenameWithoutExt}.${fileExt}`;
-
-      // Ruta completa del archivo
-      const filePath = join(uploadDir, filename);
-
-      // Guardar el archivo original
-      await writeFile(filePath, buffer);
-
-      // Establecer permisos de archivo
-      try {
-        await chmod(filePath, 0o644);
-        console.log(`Permisos establecidos para: ${filePath}`);
-      } catch (e) {
-        console.error(`Error al establecer permisos: ${e}`);
-      }
-
-      // URL para acceder al archivo - Usando la URL del servidor estático si está configurada
-      const fileUrl = STATIC_SERVER_URL
-        ? `${STATIC_SERVER_URL}/imagenes/${folder}/${filename}`
-        : `/imagenes/${folder}/${filename}`;
-
-      console.log(`URL de archivo generada: ${fileUrl}`);
-
-      // Verificar que el archivo existe después de la escritura
-      const fileExists = existsSync(filePath);
-      console.log(`Verificación de archivo después de escritura: ${fileExists ? 'Existe' : 'No existe'}`);
-
-      console.log(`Archivo guardado sin conversión: ${fileUrl}`);
-
-      // Crear URL absoluta para pruebas
-      const host = request.headers.get('host') || 'localhost';
-      const protocol = host.includes('localhost') ? 'http' : 'https';
-      const absoluteUrl = `${protocol}://${host}${fileUrl}`;
-
-      return NextResponse.json({
-        success: true,
-        url: fileUrl,
-        absoluteUrl,
-        filename: filename,
-        originalFilename: originalFilename,
-        format: fileExt,
-        fileExists,
-        absolutePath: filePath,
-        size: fileExists ? statSync(filePath).size : 0
-      });
+      // Cambiar la extensión del archivo a .webp
+      const nameWithoutExt = file.name.split('.')[0];
+      finalFileName = `${nameWithoutExt}.webp`;
     }
-  } catch (error) {
-    console.error('Error al subir archivo:', error);
+
+    // Generar nombre único con timestamp
+    const timestamp = Date.now();
+    const fileNameWithoutExt = finalFileName.split('.')[0].replace(/\s+/g, '-');
+    const fileExtension = finalFileName.split('.').pop();
+    const uniqueFileName = `${timestamp}-${fileNameWithoutExt}.${fileExtension}`;
+
+    // Subir a ImageKit
+    console.log(`Subiendo a ImageKit: ${uniqueFileName} en carpeta: ${folder}`);
+
+    const uploadResult = await uploadFile(
+      processedBuffer,
+      uniqueFileName,
+      folder,
+      [folder, 'upload'] // Tags para organizar
+    );
+
+    console.log(`Archivo subido exitosamente a ImageKit:`, {
+      fileId: uploadResult.fileId,
+      name: uploadResult.name,
+      url: uploadResult.url
+    });
+
+    // Generar diferentes URLs con transformaciones para responsive
+    const baseUrl = uploadResult.url;
+
+    // URLs optimizadas para diferentes dispositivos
+    const responsiveUrls = {
+      thumbnail: `${baseUrl}?tr=w-300,h-200,c-maintain_ratio`,
+      small: `${baseUrl}?tr=w-600,h-400,c-maintain_ratio`,
+      medium: `${baseUrl}?tr=w-1200,h-800,c-maintain_ratio`,
+      large: `${baseUrl}?tr=w-1920,h-1080,c-maintain_ratio`,
+      original: baseUrl
+    };
+
+    return NextResponse.json({
+      success: true,
+      url: baseUrl,
+      fileId: uploadResult.fileId,
+      name: uploadResult.name,
+      originalFilename: file.name,
+      processedFilename: uniqueFileName,
+      format: isImage && mimeType !== 'image/gif' ? 'webp' : fileExtension,
+      folder: folder,
+      size: uploadResult.size,
+      responsiveUrls: responsiveUrls,
+      imagekitResponse: {
+        fileId: uploadResult.fileId,
+        name: uploadResult.name,
+        url: uploadResult.url,
+        thumbnailUrl: uploadResult.thumbnailUrl,
+        fileType: uploadResult.fileType,
+        filePath: uploadResult.filePath
+      }
+    });
+
+  } catch (error: any) {
+    console.error('Error al subir archivo a ImageKit:', error);
+
     return NextResponse.json(
       {
         error: 'Error al procesar el archivo',
-        details: error instanceof Error ? error.message : String(error),
-        stack: error instanceof Error ? error.stack : undefined
+        details: error.message || String(error),
+        stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
       },
       { status: 500 }
     );

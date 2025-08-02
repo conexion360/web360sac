@@ -1,6 +1,6 @@
 [build]
 builder = "NIXPACKS"
-buildCommand = "npm install && npm run build && npm run setup-folders"
+buildCommand = "npm install && npm run build && npm run setup-folders && node setup-imagekit.js"
 
 [deploy]
 startCommand = "npm start"
@@ -16,3 +16,8 @@ version = "15"
 [variables]
 NODE_ENV = "production"
 HOSTNAME = "0.0.0.0"
+
+# Variables ImageKit (configurar en Railway Dashboard)
+# IMAGEKIT_PUBLIC_KEY = "public_nJIM9VeYDWasBIUi3ixlGpRzZz4="
+# IMAGEKIT_PRIVATE_KEY = "private_OiWhfp78ou3Prah0GLZ67xoLE98="
+# IMAGEKIT_URL_ENDPOINT = "https://ik.imagekit.io/qpdyvnppk"

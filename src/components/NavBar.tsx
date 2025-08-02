@@ -2,6 +2,7 @@
 "use client"
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+<<<<<<< HEAD
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 
@@ -18,11 +19,21 @@ const NavBar: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const pathname = usePathname();
 
+=======
+import { usePathname } from 'next/navigation';
+
+const NavBar: React.FC = () => {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
+  const pathname = usePathname();
+  
+>>>>>>> a6196d595eb927846a3f58427564aeea98536b3b
   // No mostrar el NavBar en rutas que comiencen con /admin
   if (pathname?.startsWith('/admin')) {
     return null;
   }
 
+<<<<<<< HEAD
   // Cargar la configuración del sitio
   useEffect(() => {
     const fetchConfiguracion = async () => {
@@ -44,11 +55,17 @@ const NavBar: React.FC = () => {
     fetchConfiguracion();
   }, []);
 
+=======
+>>>>>>> a6196d595eb927846a3f58427564aeea98536b3b
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 50);
     };
+<<<<<<< HEAD
 
+=======
+    
+>>>>>>> a6196d595eb927846a3f58427564aeea98536b3b
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
@@ -69,11 +86,16 @@ const NavBar: React.FC = () => {
   ];
 
   return (
+<<<<<<< HEAD
     <header
+=======
+    <header 
+>>>>>>> a6196d595eb927846a3f58427564aeea98536b3b
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${isScrolled ? 'nav-scrolled' : 'nav-transparent'}`}
     >
       <nav className="container mx-auto px-6 py-4">
         <div className="flex justify-between items-center">
+<<<<<<< HEAD
           {/* Logo */}
           <div className="text-white font-bold text-xl md:text-2xl relative group">
             {configuracion?.logo ? (
@@ -100,27 +122,53 @@ const NavBar: React.FC = () => {
               <Link
                 key={link.name}
                 href={link.href}
+=======
+          {/* Text Logo */}
+          <div className="text-white font-bold text-xl md:text-2xl relative group">
+            <span className="text-white">CONEXION</span>
+            <span className="text-secondary"> 360</span>
+          </div>
+          
+          {/* Desktop Navigation */}
+          <div className="hidden md:flex items-center space-x-8">
+            {navLinks.map((link) => (
+              <Link 
+                key={link.name}
+                href={link.href} 
+>>>>>>> a6196d595eb927846a3f58427564aeea98536b3b
                 className="nav-link group"
               >
                 <span className="relative z-10">{link.name}</span>
                 <div className="absolute bottom-0 left-0 w-full h-0.5 bg-secondary transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></div>
               </Link>
             ))}
+<<<<<<< HEAD
             <Link
               href="#contacto"
+=======
+            <Link 
+              href="#contacto" 
+>>>>>>> a6196d595eb927846a3f58427564aeea98536b3b
               className="contact-btn relative overflow-hidden group"
             >
               <span className="relative z-10">Contáctanos</span>
               <div className="absolute inset-0 bg-gradient-to-r from-secondary-light to-secondary opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
             </Link>
           </div>
+<<<<<<< HEAD
 
           {/* Mobile Menu Button */}
           <button
+=======
+          
+          {/* Mobile Menu Button */}
+          <button 
+>>>>>>> a6196d595eb927846a3f58427564aeea98536b3b
             className="md:hidden text-white focus:outline-none group"
             onClick={toggleMenu}
           >
             <div className="relative">
+<<<<<<< HEAD
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 className="h-6 w-6 transition-transform duration-300 group-hover:scale-110"
@@ -133,6 +181,20 @@ const NavBar: React.FC = () => {
                   strokeLinejoin="round"
                   strokeWidth={2}
                   d={isMenuOpen ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16M4 18h16"}
+=======
+              <svg 
+                xmlns="http://www.w3.org/2000/svg" 
+                className="h-6 w-6 transition-transform duration-300 group-hover:scale-110"
+                fill="none" 
+                viewBox="0 0 24 24" 
+                stroke="currentColor"
+              >
+                <path 
+                  strokeLinecap="round" 
+                  strokeLinejoin="round" 
+                  strokeWidth={2} 
+                  d={isMenuOpen ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16M4 18h16"} 
+>>>>>>> a6196d595eb927846a3f58427564aeea98536b3b
                 />
               </svg>
               <div className="absolute inset-0 bg-secondary/20 rounded-full blur opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
@@ -140,16 +202,28 @@ const NavBar: React.FC = () => {
           </button>
         </div>
       </nav>
+<<<<<<< HEAD
 
       {/* Mobile Navigation */}
       <div
+=======
+      
+      {/* Mobile Navigation */}
+      <div 
+>>>>>>> a6196d595eb927846a3f58427564aeea98536b3b
         className={`md:hidden bg-primary/95 backdrop-blur-md transition-all duration-300 ${isMenuOpen ? 'max-h-64 py-4' : 'max-h-0 overflow-hidden'}`}
       >
         <div className="container mx-auto px-6 space-y-4">
           {navLinks.map((link) => (
+<<<<<<< HEAD
             <Link
               key={link.name}
               href={link.href}
+=======
+            <Link 
+              key={link.name}
+              href={link.href} 
+>>>>>>> a6196d595eb927846a3f58427564aeea98536b3b
               className="mobile-nav-link group"
               onClick={closeMenu}
             >
@@ -157,8 +231,13 @@ const NavBar: React.FC = () => {
               <div className="absolute inset-0 bg-secondary/10 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
             </Link>
           ))}
+<<<<<<< HEAD
           <Link
             href="#contacto"
+=======
+          <Link 
+            href="#contacto" 
+>>>>>>> a6196d595eb927846a3f58427564aeea98536b3b
             className="contact-btn block text-center"
             onClick={closeMenu}
           >

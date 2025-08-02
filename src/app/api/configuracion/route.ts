@@ -5,6 +5,7 @@ import { db } from '@/lib/db';
 // GET - Obtener la configuración del sitio
 export async function GET() {
   try {
+<<<<<<< HEAD
     console.log('Obteniendo configuración del sitio...');
 
     const result = await db.query(
@@ -23,6 +24,17 @@ export async function GET() {
       favicon: result.rows[0].favicon ? 'Disponible' : 'No disponible'
     });
 
+=======
+    const result = await db.query(
+      'SELECT * FROM configuracion LIMIT 1'
+    );
+    
+    // Si no hay configuración, devolver un objeto vacío
+    if (result.rows.length === 0) {
+      return NextResponse.json({});
+    }
+    
+>>>>>>> a6196d595eb927846a3f58427564aeea98536b3b
     return NextResponse.json(result.rows[0]);
   } catch (error) {
     console.error('Error al obtener configuración:', error);
@@ -49,6 +61,7 @@ export async function POST(request: NextRequest) {
       tiktok,
       youtube
     } = await request.json();
+<<<<<<< HEAD
 
     console.log('Actualizando configuración del sitio:', {
       nombre_sitio,
@@ -61,6 +74,14 @@ export async function POST(request: NextRequest) {
 
     let result;
 
+=======
+    
+    // Verificar si ya existe una configuración
+    const checkResult = await db.query('SELECT id FROM configuracion LIMIT 1');
+    
+    let result;
+    
+>>>>>>> a6196d595eb927846a3f58427564aeea98536b3b
     if (checkResult.rows.length === 0) {
       // Crear nueva configuración
       result = await db.query(
@@ -90,9 +111,13 @@ export async function POST(request: NextRequest) {
         ]
       );
     }
+<<<<<<< HEAD
 
     console.log('Configuración actualizada correctamente');
 
+=======
+    
+>>>>>>> a6196d595eb927846a3f58427564aeea98536b3b
     return NextResponse.json(result.rows[0]);
   } catch (error) {
     console.error('Error al actualizar configuración:', error);

@@ -4,9 +4,15 @@ import { Pool } from 'pg';
 // Configuración de la conexión a PostgreSQL
 const pool = new Pool({
   user: process.env.DB_USER || 'postgres',
+<<<<<<< HEAD
   password: process.env.DB_PASSWORD || '147ABC55',
   host: process.env.DB_HOST || 'localhost',
   port: parseInt(process.env.DB_PORT || '9134'),
+=======
+  password: process.env.DB_PASSWORD || '123456',
+  host: process.env.DB_HOST || 'localhost',
+  port: parseInt(process.env.DB_PORT || '5432'),
+>>>>>>> a6196d595eb927846a3f58427564aeea98536b3b
   database: process.env.DB_NAME || 'conexion360',
   ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
 });
@@ -14,7 +20,10 @@ const pool = new Pool({
 console.log('Connecting to database:', {
   user: process.env.DB_USER || 'postgres',
   host: process.env.DB_HOST || 'localhost',
+<<<<<<< HEAD
   port: process.env.DB_PORT || '9134',
+=======
+>>>>>>> a6196d595eb927846a3f58427564aeea98536b3b
   database: process.env.DB_NAME || 'conexion360',
 });
 

@@ -1,14 +1,22 @@
+<<<<<<< HEAD
 ﻿// src/app/layout.tsx
 'use client'
 import './globals.css';
 import './galeria.css';
 import { useState, useEffect } from 'react';
+=======
+﻿// app/layout.tsx
+import './globals.css';
+import './galeria.css';
+import type { Metadata } from 'next';
+>>>>>>> a6196d595eb927846a3f58427564aeea98536b3b
 import { Inter } from 'next/font/google';
 import NavBar from '@/components/NavBar';
 import FooterSection from '@/components/FooterSection';
 
 const inter = Inter({ subsets: ['latin'] });
 
+<<<<<<< HEAD
 interface LayoutProps {
   children: React.ReactNode;
 }
@@ -38,10 +46,23 @@ export default function RootLayout({ children }: LayoutProps) {
     fetchConfiguracion();
   }, []);
 
+=======
+export const metadata: Metadata = {
+  title: 'Conexion 360 SAC',
+  description: 'Sitio web oficial de Conexion 360 SAC',
+};
+
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode
+}) {
+>>>>>>> a6196d595eb927846a3f58427564aeea98536b3b
   return (
     <html lang="es">
       <head>
         <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet" />
+<<<<<<< HEAD
 
         {/* Favicon dinámico */}
         {configuracion?.favicon && (
@@ -56,6 +77,11 @@ export default function RootLayout({ children }: LayoutProps) {
         } />
       </head>
       <body className={inter.className}>
+=======
+      </head>
+      <body className={inter.className}>
+        {/* NavBar se incluye una sola vez en el layout raíz */}
+>>>>>>> a6196d595eb927846a3f58427564aeea98536b3b
         <NavBar />
         <main>{children}</main>
         <FooterSection />

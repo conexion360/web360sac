@@ -187,24 +187,21 @@ const GallerySection: React.FC = () => {
                   : 'bg-white/10 text-white hover:bg-white/20'
               }`}
             >
-              Todas ({galleryImages.length})
+              Todas
             </button>
-            {categorias.map(cat => {
-              const count = galleryImages.filter(i => i.categoria?.trim() === cat).length;
-              return (
-                <button
-                  key={cat}
-                  onClick={() => setActiveCategory(cat)}
-                  className={`px-5 py-2 rounded-full text-sm md:text-base font-medium transition-all duration-300 ${
-                    activeCategory === cat
-                      ? 'bg-secondary text-primary shadow-lg'
-                      : 'bg-white/10 text-white hover:bg-white/20'
-                  }`}
-                >
-                  {cat} ({count})
-                </button>
-              );
-            })}
+            {categorias.map(cat => (
+              <button
+                key={cat}
+                onClick={() => setActiveCategory(cat)}
+                className={`px-5 py-2 rounded-full text-sm md:text-base font-medium transition-all duration-300 ${
+                  activeCategory === cat
+                    ? 'bg-secondary text-primary shadow-lg'
+                    : 'bg-white/10 text-white hover:bg-white/20'
+                }`}
+              >
+                {cat}
+              </button>
+            ))}
           </div>
         )}
 
@@ -238,22 +235,24 @@ const GallerySection: React.FC = () => {
                         {image.imagen ? (
                           <img
                             src={image.imagen}
-                            alt={image.titulo}
+                            alt={image.categoria || 'Galería Conexión 360'}
                             className="carousel-3d-image"
                           />
                         ) : (
                           <div className="bg-gray-800 h-full w-full flex items-center justify-center text-white">
-                            {image.titulo}
+                            {image.categoria || 'Galería'}
                           </div>
                         )}
-                        <div className="carousel-3d-overlay">
-                          <div className="p-6 absolute bottom-0 w-full">
-                            <h3 className="text-xl font-bold text-white">{image.titulo}</h3>
-                            {image.descripcion && (
-                              <p className="text-gray-200">{image.descripcion}</p>
-                            )}
+                        {image.categoria && (
+                          <div className="carousel-3d-overlay">
+                            <div className="p-6 absolute bottom-0 w-full">
+                              <h3 className="text-xl font-bold text-white">{image.categoria}</h3>
+                              {image.descripcion && (
+                                <p className="text-gray-200">{image.descripcion}</p>
+                              )}
+                            </div>
                           </div>
-                        </div>
+                        )}
                         <div className="light-effect"></div>
                       </div>
                       <div className="carousel-3d-reflection"></div>
@@ -271,6 +270,18 @@ const GallerySection: React.FC = () => {
             </div>
           </div>
         )}
+
+        <div className="mt-10 text-center reveal-on-scroll">
+          <a
+            href="/galeria"
+            className="inline-flex items-center gap-2 rounded-full bg-secondary px-8 py-3 text-sm font-semibold text-primary transition-all hover:bg-secondary-light hover:-translate-y-0.5 shadow-lg"
+          >
+            Ver galería completa
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+              <path fillRule="evenodd" d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z" clipRule="evenodd" />
+            </svg>
+          </a>
+        </div>
       </div>
 
       {/* Modal para vista ampliada */}

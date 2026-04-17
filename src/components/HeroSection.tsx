@@ -1,13 +1,7 @@
 // src/components/HeroSection.tsx
 "use client"
 import React, { useState, useEffect } from 'react';
-import { Swiper, SwiperSlide } from 'swiper/react';
-import { Autoplay, EffectFade } from 'swiper/modules';
 import { useImageKitUrl } from './ImageKitImage';
-
-// Import Swiper styles
-import 'swiper/css';
-import 'swiper/css/effect-fade';
 
 interface HeroSlide {
   id: number;
@@ -24,6 +18,7 @@ const HeroSection: React.FC = () => {
   const [isMobile, setIsMobile] = useState(false);
   const [slides, setSlides] = useState<HeroSlide[]>([]);
   const [loading, setLoading] = useState(true);
+  const [currentSlide, setCurrentSlide] = useState(0);
   const { generateUrl } = useImageKitUrl();
 
   // Verificar si es móvil
@@ -108,6 +103,15 @@ const HeroSection: React.FC = () => {
     }
   }, [slides, isMobile]);
 
+  // Autoplay: cambiar slide cada 4 segundos
+  useEffect(() => {
+    if (slides.length <= 1) return;
+    const interval = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % slides.length);
+    }, 4000);
+    return () => clearInterval(interval);
+  }, [slides.length]);
+
   if (loading) {
     return (
       <section id="inicio" className="relative min-h-screen flex items-center justify-center overflow-hidden bg-primary">
@@ -118,60 +122,43 @@ const HeroSection: React.FC = () => {
 
   return (
     <section id="inicio" className="relative min-h-screen flex items-center overflow-hidden">
-      {/* Background Slider */}
-      <div className="absolute inset-0 z-0">
+      {/* Background Slider - Fade manual */}
+      <div className="absolute inset-0 z-0 bg-primary-dark">
         {slides.length > 0 ? (
-          <Swiper
-            modules={[Autoplay, EffectFade]}
-            slidesPerView={1}
-            effect="fade"
-            speed={800}
-            autoplay={{
-              delay: 4000,
-              disableOnInteraction: false
-            }}
-            className="absolute inset-0 w-full h-full"
-          >
-            {slides.map((slide) => {
-              const imageUrl = isMobile ? slide.imagen_mobile : slide.imagen_desktop;
-              const optimizedUrl = getOptimizedImageUrl(imageUrl, isMobile);
+          slides.map((slide, idx) => {
+            const imageUrl = isMobile ? slide.imagen_mobile : slide.imagen_desktop;
+            const optimizedUrl = getOptimizedImageUrl(imageUrl, isMobile);
+            const isActive = idx === currentSlide;
 
-              return (
-                <SwiperSlide key={slide.id} className="w-full h-full">
-                  <div className="relative w-full h-full">
-                    {optimizedUrl ? (
-                      <div
-                        className="w-full h-full bg-primary-dark transition-all duration-1000"
-                        style={{
-                          backgroundImage: `url(${optimizedUrl})`,
-                          backgroundSize: 'cover',
-                          backgroundPosition: isMobile ? 'center 20%' : 'center'
-                        }}
-                        onError={(e) => {
-                          // Fallback en caso de error
-                          const target = e.target as HTMLDivElement;
-                          target.style.backgroundImage = 'none';
-                          target.style.backgroundColor = '#052752';
-                        }}
-                      />
-                    ) : (
-                      <div className="w-full h-full bg-primary-dark" />
-                    )}
-
-                    {/* Gradient overlay */}
-                    <div
-                      className={`absolute inset-0 ${isMobile
-                          ? 'bg-gradient-to-b from-primary/90 via-primary/70 to-primary/50'
-                          : 'bg-gradient-to-r from-primary/95 via-primary/70 to-primary/40'
-                        }`}
-                    ></div>
-                  </div>
-                </SwiperSlide>
-              );
-            })}
-          </Swiper>
+            return (
+              <div
+                key={slide.id}
+                className="absolute inset-0 transition-opacity duration-1000"
+                style={{ opacity: isActive ? 1 : 0, zIndex: isActive ? 1 : 0 }}
+              >
+                {optimizedUrl ? (
+                  <div
+                    className="w-full h-full"
+                    style={{
+                      backgroundImage: `url(${optimizedUrl})`,
+                      backgroundSize: 'cover',
+                      backgroundPosition: isMobile ? 'center 20%' : 'center'
+                    }}
+                  />
+                ) : (
+                  <div className="w-full h-full bg-primary-dark" />
+                )}
+                <div
+                  className={`absolute inset-0 ${
+                    isMobile
+                      ? 'bg-gradient-to-b from-primary/90 via-primary/70 to-primary/50'
+                      : 'bg-gradient-to-r from-primary/95 via-primary/70 to-primary/40'
+                  }`}
+                />
+              </div>
+            );
+          })
         ) : (
-          // Fallback when no slides exist
           <div className="absolute inset-0 bg-primary-dark">
             <div className="absolute inset-0 bg-gradient-to-r from-primary/95 via-primary/70 to-primary/40"></div>
           </div>

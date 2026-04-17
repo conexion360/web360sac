@@ -88,7 +88,7 @@ export default function Dashboard() {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-gray-500 text-sm">Hero Slides</p>
-                    <p className="text-2xl font-bold">{stats.slides}</p>
+                    <p className="text-2xl font-bold text-gray-800">{stats.slides}</p>
                   </div>
                   <div className="bg-blue-100 p-2 rounded-full">
                     <span className="material-icons-outlined text-blue-500">slideshow</span>
@@ -99,7 +99,7 @@ export default function Dashboard() {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-gray-500 text-sm">Galería</p>
-                    <p className="text-2xl font-bold">{stats.galeria}</p>
+                    <p className="text-2xl font-bold text-gray-800">{stats.galeria}</p>
                   </div>
                   <div className="bg-purple-100 p-2 rounded-full">
                     <span className="material-icons-outlined text-purple-500">photo_library</span>
@@ -110,7 +110,7 @@ export default function Dashboard() {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-gray-500 text-sm">Géneros</p>
-                    <p className="text-2xl font-bold">{stats.generos}</p>
+                    <p className="text-2xl font-bold text-gray-800">{stats.generos}</p>
                   </div>
                   <div className="bg-yellow-100 p-2 rounded-full">
                     <span className="material-icons-outlined text-yellow-500">category</span>
@@ -121,7 +121,7 @@ export default function Dashboard() {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-gray-500 text-sm">Música</p>
-                    <p className="text-2xl font-bold">{stats.musicas}</p>
+                    <p className="text-2xl font-bold text-gray-800">{stats.musicas}</p>
                   </div>
                   <div className="bg-pink-100 p-2 rounded-full">
                     <span className="material-icons-outlined text-pink-500">music_note</span>
@@ -132,7 +132,7 @@ export default function Dashboard() {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-gray-500 text-sm">Mensajes</p>
-                    <p className="text-2xl font-bold">{stats.mensajes}</p>
+                    <p className="text-2xl font-bold text-gray-800">{stats.mensajes}</p>
                   </div>
                   <div className="bg-green-100 p-2 rounded-full">
                     <span className="material-icons-outlined text-green-500">email</span>

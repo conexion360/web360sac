@@ -130,21 +130,9 @@ const MusicPlayer: React.FC = () => {
     setCurrentTrack((prev) => (prev + 1) % tracks.length);
   };
 
-  // If no tracks are available, show a minimal player with a message
+  // Si no hay pistas, no renderizar el reproductor
   if (tracks.length === 0) {
-    return (
-      <div className="bg-white/10 backdrop-blur-md rounded-lg p-2 flex items-center space-x-2 max-w-[400px]">
-        <div className="flex-grow flex items-center min-w-0 overflow-hidden">
-          <div className="marquee-container">
-            <div className="marquee-content">
-              <span className="text-xs text-white/90">
-                {loading ? "Cargando música..." : error || "No hay música disponible"}
-              </span>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
+    return null;
   }
 
   return (

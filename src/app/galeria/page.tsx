@@ -95,7 +95,8 @@ export default function GaleriaPage() {
   const albums: Album[] = useMemo(() => {
     const map = new Map<string, Album>();
     fotos.forEach((foto) => {
-      const categoria = foto.categoria?.trim() || 'Sin categoría';
+      const categoria = foto.categoria?.trim();
+      if (!categoria) return; // Ignorar fotos sin categoría
       const id = categoria.replace(/[^a-zA-Z0-9]+/g, '-').toLowerCase();
       if (!map.has(id)) {
         map.set(id, { id, nombre: categoria, descripcion: null, fotos: [] });
@@ -105,7 +106,7 @@ export default function GaleriaPage() {
     return Array.from(map.values()).sort((a, b) => a.nombre.localeCompare(b.nombre));
   }, [fotos]);
 
-  const totalFotos = fotos.length;
+  const totalFotos = useMemo(() => albums.reduce((sum, a) => sum + a.fotos.length, 0), [albums]);
 
   // IntersectionObserver para resaltar álbum activo en la barra sticky
   useEffect(() => {

@@ -3,9 +3,8 @@
 import './globals.css';
 import './galeria.css';
 import { Inter } from 'next/font/google';
-import NavBar from '@/components/NavBar';
-import FooterSection from '@/components/FooterSection';
 import SiteConfigLoader from '@/components/SiteConfigLoader';
+import PublicChrome from '@/components/PublicChrome';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -23,9 +22,7 @@ export default function RootLayout({ children }: LayoutProps) {
       </head>
       <body className={inter.className}>
         <SiteConfigLoader />
-        <NavBar />
-        <main>{children}</main>
-        <FooterSection />
+        <PublicChrome>{children}</PublicChrome>
       </body>
     </html>
   );

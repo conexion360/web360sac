@@ -1,8 +1,14 @@
 'use client';
 import { useEffect } from 'react';
+import { usePathname } from 'next/navigation';
 
 export default function SiteConfigLoader() {
+  const pathname = usePathname();
+
   useEffect(() => {
+    // No ejecutar en rutas de admin
+    if (pathname?.startsWith('/admin')) return;
+
     fetch('/api/configuracion')
       .then((r) => (r.ok ? r.json() : null))
       .then((data) => {
@@ -13,23 +19,15 @@ export default function SiteConfigLoader() {
         }
 
         if (data.favicon) {
-          document.querySelectorAll('link[rel*="icon"]').forEach((el) => el.remove());
-          const formats: { rel: string; sizes?: string }[] = [
-            { rel: 'icon', sizes: '32x32' },
-            { rel: 'shortcut icon' },
-            { rel: 'apple-touch-icon' },
-          ];
-          formats.forEach((f) => {
-            const link = document.createElement('link');
-            link.rel = f.rel;
-            if (f.sizes) link.setAttribute('sizes', f.sizes);
-            link.href = data.favicon;
-            document.head.appendChild(link);
-          });
+          // Solo actualizar el href del icon existente, no eliminar/crear nodos
+          const existing = document.querySelector<HTMLLinkElement>('link[rel="icon"]');
+          if (existing) {
+            existing.href = data.favicon;
+          }
         }
       })
       .catch((err) => console.error('Error cargando configuracion:', err));
-  }, []);
+  }, [pathname]);
 
   return null;
 }

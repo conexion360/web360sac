@@ -64,7 +64,7 @@ const AdminLayout = ({ children }: { children: React.ReactNode }) => {
   ];
 
   return (
-    <div className="flex h-screen bg-gray-100">
+    <div className="admin-scope flex h-screen bg-gray-100 text-gray-800">
       {/* Sidebar para escritorio */}
       <aside className="hidden md:flex flex-col w-64 bg-primary text-white">
         <div className="p-4 border-b border-primary-light">

@@ -182,3 +182,33 @@ html {
   pointer-events: none;
   animation: float 30s linear infinite;
 }
+
+/* Admin: forzar texto oscuro en inputs, selects y textareas */
+.admin-scope,
+.admin-scope input,
+.admin-scope textarea,
+.admin-scope select,
+.admin-scope option,
+.admin-scope label,
+.admin-scope button,
+.admin-scope h1,
+.admin-scope h2,
+.admin-scope h3,
+.admin-scope h4,
+.admin-scope p,
+.admin-scope span,
+.admin-scope div {
+  color: inherit;
+}
+
+.admin-scope input:not([type="checkbox"]):not([type="radio"]),
+.admin-scope textarea,
+.admin-scope select {
+  color: #1f2937; /* gray-800 */
+  background-color: #ffffff;
+}
+
+.admin-scope input::placeholder,
+.admin-scope textarea::placeholder {
+  color: #9ca3af; /* gray-400 */
+}

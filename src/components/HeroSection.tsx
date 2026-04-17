@@ -3,7 +3,6 @@
 import React, { useState, useEffect } from 'react';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Autoplay, EffectFade } from 'swiper/modules';
-import MusicPlayer from './MusicPlayer';
 import { useImageKitUrl } from './ImageKitImage';
 
 // Import Swiper styles
@@ -249,14 +248,6 @@ const HeroSection: React.FC = () => {
             ))}
           </div>
 
-          {/* Music player */}
-          <div
-            className={`opacity-0 transform transition-all duration-1000 mx-auto sm:mx-0 max-w-xs sm:max-w-none ${isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-              }`}
-            style={{ transitionDelay: '900ms' }}
-          >
-            <MusicPlayer />
-          </div>
         </div>
       </div>
     </section>

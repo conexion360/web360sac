@@ -1,6 +1,5 @@
 // src/app/admin/layout.tsx
 import type { Metadata } from 'next';
-import AdminHead from './components/AdminHead';
 
 export const metadata: Metadata = {
   title: 'Admin - Conexion 360 SAC',
@@ -12,10 +11,5 @@ export default function AdminLayout({
 }: {
   children: React.ReactNode
 }) {
-  return (
-    <>
-      <AdminHead />
-      {children}
-    </>
-  );
+  return <>{children}</>;
 }

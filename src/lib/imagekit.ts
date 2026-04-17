@@ -1,33 +1,49 @@
 // src/lib/imagekit.ts
 import ImageKit from 'imagekit';
 
-// Configuración del cliente ImageKit
-export const imagekit = new ImageKit({
-    publicKey: process.env.IMAGEKIT_PUBLIC_KEY || '',
-    privateKey: process.env.IMAGEKIT_PRIVATE_KEY || '',
-    urlEndpoint: process.env.IMAGEKIT_URL_ENDPOINT || ''
-});
+let _imagekit: ImageKit | null = null;
 
-// Función para generar token de autenticación (si es necesario para el frontend)
-export function getAuthenticationParameters() {
-    const authenticationParameters = imagekit.getAuthenticationParameters();
-    return authenticationParameters;
+function getImageKit(): ImageKit {
+    if (_imagekit) return _imagekit;
+
+    const publicKey = process.env.IMAGEKIT_PUBLIC_KEY;
+    const privateKey = process.env.IMAGEKIT_PRIVATE_KEY;
+    const urlEndpoint = process.env.IMAGEKIT_URL_ENDPOINT;
+
+    if (!publicKey || !privateKey || !urlEndpoint) {
+        throw new Error(
+            'ImageKit no configurado: faltan IMAGEKIT_PUBLIC_KEY, IMAGEKIT_PRIVATE_KEY o IMAGEKIT_URL_ENDPOINT'
+        );
+    }
+
+    _imagekit = new ImageKit({ publicKey, privateKey, urlEndpoint });
+    return _imagekit;
 }
 
-// Función para generar URLs optimizadas
+export const imagekit = new Proxy({} as ImageKit, {
+    get(_target, prop) {
+        const instance = getImageKit();
+        const value = (instance as any)[prop];
+        return typeof value === 'function' ? value.bind(instance) : value;
+    }
+});
+
+export function getAuthenticationParameters() {
+    return getImageKit().getAuthenticationParameters();
+}
+
 export function generateImageUrl(
     path: string,
     transformations?: any[],
     transformationPosition?: 'path' | 'query'
 ) {
-    return imagekit.url({
+    return getImageKit().url({
         path,
         transformation: transformations,
         transformationPosition: transformationPosition || 'path'
     });
 }
 
-// Función para subir archivo
 export async function uploadFile(
     file: Buffer | string,
     fileName: string,
@@ -35,7 +51,7 @@ export async function uploadFile(
     tags?: string[]
 ) {
     try {
-        const result = await imagekit.upload({
+        const result = await getImageKit().upload({
             file: file,
             fileName: fileName,
             folder: folder || '/',
@@ -43,7 +59,6 @@ export async function uploadFile(
             useUniqueFileName: true,
             isPrivateFile: false
         });
-
         return result;
     } catch (error) {
         console.error('Error uploading to ImageKit:', error);
@@ -51,10 +66,9 @@ export async function uploadFile(
     }
 }
 
-// Función para eliminar archivo
 export async function deleteFile(fileId: string) {
     try {
-        const result = await imagekit.deleteFile(fileId);
+        const result = await getImageKit().deleteFile(fileId);
         return result;
     } catch (error) {
         console.error('Error deleting from ImageKit:', error);

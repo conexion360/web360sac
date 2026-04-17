@@ -2,6 +2,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { imagekit } from '@/lib/imagekit';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(request: NextRequest) {
     try {
         // Verificar configuración de variables de entorno

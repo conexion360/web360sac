@@ -1,27 +1,26 @@
-﻿// src/lib/db.ts
-import { Pool } from 'pg';
+// src/lib/db.ts
+import { Pool, PoolConfig } from 'pg';
 
-// Configuración de la conexión a PostgreSQL
-const pool = new Pool({
-  user: process.env.DB_USER || 'postgres',
-  password: process.env.DB_PASSWORD || '147ABC55',
-  host: process.env.DB_HOST || 'localhost',
-  port: parseInt(process.env.DB_PORT || '9134'),
-  database: process.env.DB_NAME || 'conexion360',
-  ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
-});
+const isProduction = process.env.NODE_ENV === 'production';
 
-console.log('Connecting to database:', {
-  user: process.env.DB_USER || 'postgres',
-  host: process.env.DB_HOST || 'localhost',
-  port: process.env.DB_PORT || '9134',
-  database: process.env.DB_NAME || 'conexion360',
-});
+const poolConfig: PoolConfig = process.env.DATABASE_URL
+  ? {
+      connectionString: process.env.DATABASE_URL,
+      ssl: isProduction ? { rejectUnauthorized: false } : false,
+    }
+  : {
+      user: process.env.DB_USER || 'postgres',
+      password: process.env.DB_PASSWORD || '147ABC55',
+      host: process.env.DB_HOST || 'localhost',
+      port: parseInt(process.env.DB_PORT || '9134'),
+      database: process.env.DB_NAME || 'conexion360',
+      ssl: isProduction ? { rejectUnauthorized: false } : false,
+    };
 
-// Exportamos el pool para usarlo en los endpoints de API
+const pool = new Pool(poolConfig);
+
 export const db = pool;
 
-// Función para comprobar la conexión a la base de datos
 export async function checkDatabaseConnection() {
   try {
     const client = await pool.connect();
@@ -35,7 +34,6 @@ export async function checkDatabaseConnection() {
   }
 }
 
-// Función para ejecutar consultas SQL
 export async function query(text: string, params?: any[]) {
   const start = Date.now();
   try {

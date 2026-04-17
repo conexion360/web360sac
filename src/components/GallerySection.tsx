@@ -127,8 +127,8 @@ const GallerySection: React.FC = () => {
                   onClick={() => setActiveCategory(cat)}
                   className={`px-6 py-3 rounded-xl text-sm md:text-base font-bold transition-all duration-300 min-w-[140px] text-center leading-tight shadow-md ${
                     isActive
-                      ? 'bg-yellow-400 text-[#031c3b]'
-                      : 'bg-white text-[#031c3b] hover:bg-gray-100'
+                      ? 'bg-secondary text-[#031c3b] shadow-glow'
+                      : 'bg-white/90 text-[#031c3b] hover:bg-secondary/20 hover:text-white'
                   }`}
                 >
                   {cat}

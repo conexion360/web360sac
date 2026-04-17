@@ -2,7 +2,6 @@
 'use client'
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import Image from 'next/image';
 
 export default function AdminLogin() {
   const [email, setEmail] = useState('admin@conexion360sac.com');
@@ -137,30 +136,8 @@ export default function AdminLogin() {
     <div className="min-h-screen flex items-center justify-center bg-primary">
       <div className="bg-white/10 backdrop-blur-lg p-8 rounded-xl shadow-xl w-full max-w-md">
         <div className="text-center mb-8">
-          <div className="h-16 w-48 mx-auto mb-6 relative">
-            {/* Logo */}
-            <Image 
-              src="/imagenes/conexion_logo.png" 
-              alt="Conexion 360 Logo" 
-              width={200} 
-              height={64} 
-              className="mx-auto"
-              onError={(e) => {
-                // Fallback si la imagen no se puede cargar
-                const target = e.target as HTMLImageElement;
-                target.onerror = null; // Prevenir loop infinito
-                target.style.display = 'none';
-                
-                // Crear elemento de texto como fallback
-                const parent = target.parentElement;
-                if (parent) {
-                  const fallback = document.createElement('div');
-                  fallback.textContent = 'CONEXION 360';
-                  fallback.className = 'text-2xl font-bold text-white';
-                  parent.appendChild(fallback);
-                }
-              }}
-            />
+          <div className="h-16 w-48 mx-auto mb-6 flex items-center justify-center">
+            <div className="text-2xl font-bold text-white">CONEXION 360</div>
           </div>
           <h1 className="text-2xl font-bold text-white">Panel de Administración</h1>
           <p className="text-gray-300 mt-2">Ingresa tus credenciales para acceder</p>

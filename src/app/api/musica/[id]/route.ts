@@ -40,7 +40,7 @@ export async function GET(
   }
 }
 
-// PUT - Actualizar una canción
+// PUT - Actualizar una canción (actualización parcial)
 export async function PUT(
   request: NextRequest,
   { params }: { params: { id: string } }
@@ -48,37 +48,41 @@ export async function PUT(
   try {
     const id = parseInt(params.id);
     if (isNaN(id)) {
-      return NextResponse.json(
-        { error: 'ID inválido' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'ID inválido' }, { status: 400 });
     }
-    
-    const { titulo, artista, archivo, imagen_cover, genero_id, destacado, reproducible_web, orden } = await request.json();
-    
+
+    const body = await request.json();
+    const allowedFields = ['titulo', 'artista', 'archivo', 'imagen_cover', 'genero_id', 'destacado', 'reproducible_web', 'orden'];
+    const setParts: string[] = [];
+    const values: any[] = [];
+    let paramIndex = 1;
+
+    for (const field of allowedFields) {
+      if (body[field] !== undefined) {
+        setParts.push(`${field} = $${paramIndex++}`);
+        values.push(body[field]);
+      }
+    }
+
+    if (setParts.length === 0) {
+      return NextResponse.json({ error: 'Nada que actualizar' }, { status: 400 });
+    }
+
+    values.push(id);
+
     const result = await db.query(
-      `UPDATE musica 
-       SET titulo = $1, artista = $2, archivo = $3, imagen_cover = $4, 
-           genero_id = $5, destacado = $6, reproducible_web = $7, orden = $8
-       WHERE id = $9
-       RETURNING *`,
-      [titulo, artista, archivo, imagen_cover, genero_id, destacado, reproducible_web, orden, id]
+      `UPDATE musica SET ${setParts.join(', ')} WHERE id = $${paramIndex} RETURNING *`,
+      values
     );
-    
+
     if (result.rows.length === 0) {
-      return NextResponse.json(
-        { error: 'Canción no encontrada' },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: 'Canción no encontrada' }, { status: 404 });
     }
-    
+
     return NextResponse.json(result.rows[0]);
-  } catch (error) {
-    console.error('Error al actualizar canción:', error);
-    return NextResponse.json(
-      { error: 'Error al actualizar la canción' },
-      { status: 500 }
-    );
+  } catch (error: any) {
+    console.error('Error al actualizar canción:', error.message);
+    return NextResponse.json({ error: 'Error al actualizar la canción' }, { status: 500 });
   }
 }
 

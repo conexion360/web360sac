@@ -38,7 +38,7 @@ export async function GET(
   }
 }
 
-// PUT - Actualizar una imagen
+// PUT - Actualizar una imagen (actualización parcial)
 export async function PUT(
   request: NextRequest,
   { params }: { params: { id: string } }
@@ -46,37 +46,42 @@ export async function PUT(
   try {
     const id = parseInt(params.id);
     if (isNaN(id)) {
-      return NextResponse.json(
-        { error: 'ID inválido' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'ID inválido' }, { status: 400 });
     }
-    
-    const { titulo, descripcion, imagen, thumbnail, orden, categoria, destacado } = await request.json();
-    
+
+    const body = await request.json();
+    const allowedFields = ['titulo', 'descripcion', 'imagen', 'thumbnail', 'orden', 'categoria', 'destacado'];
+    const setParts: string[] = [];
+    const values: any[] = [];
+    let paramIndex = 1;
+
+    for (const field of allowedFields) {
+      if (body[field] !== undefined) {
+        setParts.push(`${field} = $${paramIndex++}`);
+        values.push(body[field]);
+      }
+    }
+
+    if (setParts.length === 0) {
+      return NextResponse.json({ error: 'Nada que actualizar' }, { status: 400 });
+    }
+
+    setParts.push('fecha_actualizacion = CURRENT_TIMESTAMP');
+    values.push(id);
+
     const result = await db.query(
-      `UPDATE galeria 
-       SET titulo = $1, descripcion = $2, imagen = $3, thumbnail = $4, 
-           orden = $5, categoria = $6, destacado = $7, fecha_actualizacion = CURRENT_TIMESTAMP
-       WHERE id = $8
-       RETURNING *`,
-      [titulo, descripcion, imagen, thumbnail, orden, categoria, destacado, id]
+      `UPDATE galeria SET ${setParts.join(', ')} WHERE id = $${paramIndex} RETURNING *`,
+      values
     );
-    
+
     if (result.rows.length === 0) {
-      return NextResponse.json(
-        { error: 'Imagen no encontrada' },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: 'Imagen no encontrada' }, { status: 404 });
     }
-    
+
     return NextResponse.json(result.rows[0]);
-  } catch (error) {
-    console.error('Error al actualizar imagen de galería:', error);
-    return NextResponse.json(
-      { error: 'Error al actualizar la imagen' },
-      { status: 500 }
-    );
+  } catch (error: any) {
+    console.error('Error al actualizar imagen de galería:', error.message);
+    return NextResponse.json({ error: 'Error al actualizar la imagen' }, { status: 500 });
   }
 }
 

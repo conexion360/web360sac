@@ -21,109 +21,74 @@ const HeroSection: React.FC = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
   const { generateUrl } = useImageKitUrl();
 
-  // Verificar si es móvil
+  // Detectar mobile
   useEffect(() => {
-    const checkIsMobile = () => {
-      setIsMobile(window.innerWidth < 640);
-    };
-
+    const checkIsMobile = () => setIsMobile(window.innerWidth < 768);
     checkIsMobile();
     window.addEventListener('resize', checkIsMobile);
-
-    setTimeout(() => {
-      setIsLoaded(true);
-    }, 150);
-
+    const t = setTimeout(() => setIsLoaded(true), 150);
     return () => {
       window.removeEventListener('resize', checkIsMobile);
+      clearTimeout(t);
     };
   }, []);
 
-  // Cargar slides desde la API
+  // Cargar slides
   useEffect(() => {
-    const fetchSlides = async () => {
+    (async () => {
       try {
         const response = await fetch('/api/hero');
-        if (!response.ok) {
-          throw new Error('Error al cargar los slides');
-        }
-
+        if (!response.ok) throw new Error('Error al cargar los slides');
         const data = await response.json();
-        // Filtrar solo los slides activos
-        const activeSlides = data.filter((slide: HeroSlide) => slide.activo);
-        // Ordenar por el campo orden
-        activeSlides.sort((a: HeroSlide, b: HeroSlide) => a.orden - b.orden);
-
-        setSlides(activeSlides);
-      } catch (error) {
-        console.error('Error fetching hero slides:', error);
-        // No establecer slides por defecto, usar un array vacío
+        const active = data
+          .filter((s: HeroSlide) => s.activo)
+          .sort((a: HeroSlide, b: HeroSlide) => a.orden - b.orden);
+        setSlides(active);
+      } catch (err) {
+        console.error('Error fetching hero slides:', err);
         setSlides([]);
       } finally {
         setLoading(false);
       }
-    };
-
-    fetchSlides();
+    })();
   }, []);
 
-  // Función para optimizar imágenes con ImageKit
-  const getOptimizedImageUrl = (imageUrl: string, isMobile: boolean) => {
+  const getOptimizedImageUrl = (imageUrl: string, mobile: boolean) => {
     if (!imageUrl) return '';
-
     return generateUrl(imageUrl, {
-      width: isMobile ? 768 : 1920,
-      height: isMobile ? 1024 : 1080,
+      width: mobile ? 828 : 1920,
+      height: mobile ? 1472 : 1080,
       quality: 85,
       format: 'webp',
-      crop: 'maintain_ratio'
+      crop: 'maintain_ratio',
     });
   };
 
-  // Función para precargar imágenes
-  const preloadImage = (url: string): Promise<void> => {
-    return new Promise((resolve, reject) => {
-      const img = new Image();
-      img.onload = () => resolve();
-      img.onerror = reject;
-      img.src = url;
-    });
-  };
-
-  // Precargar las primeras imágenes para mejor rendimiento
-  useEffect(() => {
-    if (slides.length > 0) {
-      const firstSlide = slides[0];
-      const imageUrl = isMobile ? firstSlide.imagen_mobile : firstSlide.imagen_desktop;
-      const optimizedUrl = getOptimizedImageUrl(imageUrl, isMobile);
-
-      if (optimizedUrl) {
-        preloadImage(optimizedUrl).catch(console.error);
-      }
-    }
-  }, [slides, isMobile]);
-
-  // Autoplay: cambiar slide cada 4 segundos
+  // Autoplay
   useEffect(() => {
     if (slides.length <= 1) return;
     const interval = setInterval(() => {
       setCurrentSlide((prev) => (prev + 1) % slides.length);
-    }, 4000);
+    }, 6000);
     return () => clearInterval(interval);
   }, [slides.length]);
 
+  const goToSlide = (idx: number) => setCurrentSlide(idx);
+  const nextSlide = () => setCurrentSlide((p) => (p + 1) % slides.length);
+  const prevSlide = () => setCurrentSlide((p) => (p - 1 + slides.length) % slides.length);
+
   if (loading) {
     return (
-      <section id="inicio" className="relative min-h-screen flex items-center justify-center overflow-hidden bg-primary">
+      <section id="inicio" className="relative min-h-screen flex items-center justify-center overflow-hidden bg-primary-dark">
         <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-secondary"></div>
       </section>
     );
   }
 
   return (
-    <section id="inicio" className="relative min-h-screen flex items-center overflow-hidden">
-      {/* Background Slider - Fade manual */}
-      <div className="absolute inset-0 z-0 bg-primary-dark">
+    <section id="inicio" className="relative min-h-screen w-full overflow-hidden bg-primary-dark">
+      {/* Fondo - imágenes con Ken Burns */}
+      <div className="absolute inset-0 z-0">
         {slides.length > 0 ? (
           slides.map((slide, idx) => {
             const imageUrl = isMobile ? slide.imagen_mobile : slide.imagen_desktop;
@@ -133,109 +98,163 @@ const HeroSection: React.FC = () => {
             return (
               <div
                 key={slide.id}
-                className="absolute inset-0 transition-opacity duration-1000"
+                className="absolute inset-0 transition-opacity duration-[1500ms] ease-in-out"
                 style={{ opacity: isActive ? 1 : 0, zIndex: isActive ? 1 : 0 }}
+                aria-hidden={!isActive}
               >
-                {optimizedUrl ? (
+                {optimizedUrl && (
                   <div
-                    className="w-full h-full"
-                    style={{
-                      backgroundImage: `url(${optimizedUrl})`,
-                      backgroundSize: 'cover',
-                      backgroundPosition: isMobile ? 'center 20%' : 'center'
-                    }}
+                    className={`absolute inset-0 w-full h-full bg-center bg-cover ${isActive ? 'hero-kenburns' : ''}`}
+                    style={{ backgroundImage: `url(${optimizedUrl})` }}
                   />
-                ) : (
-                  <div className="w-full h-full bg-primary-dark" />
                 )}
-                <div
-                  className={`absolute inset-0 ${
-                    isMobile
-                      ? 'bg-gradient-to-b from-primary/90 via-primary/70 to-primary/50'
-                      : 'bg-gradient-to-r from-primary/95 via-primary/70 to-primary/40'
-                  }`}
-                />
               </div>
             );
           })
-        ) : (
-          <div className="absolute inset-0 bg-primary-dark">
-            <div className="absolute inset-0 bg-gradient-to-r from-primary/95 via-primary/70 to-primary/40"></div>
-          </div>
-        )}
+        ) : null}
+
+        {/* Overlay gradient: oscuro abajo y a la izquierda para legibilidad del texto */}
+        <div className="absolute inset-0 bg-gradient-to-t from-primary-dark via-primary-dark/60 to-transparent" />
+        <div className="hidden md:block absolute inset-0 bg-gradient-to-r from-primary-dark/85 via-primary-dark/40 to-transparent" />
+        <div className="md:hidden absolute inset-0 bg-primary-dark/40" />
       </div>
 
-      {/* Content */}
-      <div
-        className={`relative z-20 container mx-auto px-4 md:px-6 ${isMobile ? 'pt-32 pb-16' : 'py-0'
-          }`}
-      >
-        <div
-          className={`max-w-4xl relative ${isMobile ? 'mt-[45vh]' : 'pl-0 sm:pl-4 md:pl-8'
-            }`}
-          style={{
-            transition: 'all 1s ease-out',
-            opacity: isLoaded ? '1' : '0',
-            transform: isLoaded ? 'translateX(0)' : 'translateX(-2rem)'
-          }}
-        >
-          {/* Logo (desktop only) */}
-          {!isMobile && (
-            <div className="mb-6 md:mb-8 text-center sm:text-left">
-              <h1 className="text-3xl md:text-5xl font-bold text-white">
-                CONEXION 360 <span className="text-secondary">SAC</span>
-              </h1>
-            </div>
-          )}
-
-          {/* Description */}
-          <p
-            className={`text-gray-300 text-base md:text-xl mb-6 md:mb-12 text-center sm:text-left leading-relaxed max-w-xl mx-auto sm:mx-0 transition-all duration-1000 ${isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-              }`}
-            style={{ transitionDelay: '0.5s' }}
-          >
-            Líderes en la producción y organización de eventos de Rock,
-            Cumbia, Salsa, Folklore y más. Convierte tu evento en una
-            experiencia inolvidable con nosotros.
-          </p>
-
-          {/* Buttons */}
+      {/* Contenido */}
+      <div className="relative z-10 min-h-screen flex flex-col justify-end md:justify-center">
+        <div className="container mx-auto px-5 sm:px-8 lg:px-12 pb-20 md:pb-0 pt-28 md:pt-24">
           <div
-            className={`flex flex-col sm:flex-row gap-4 mb-8 md:mb-16 justify-center sm:justify-start transition-all duration-1000 ${isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-              }`}
-            style={{ transitionDelay: '0.7s' }}
+            className={`max-w-3xl transition-all duration-1000 ${
+              isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
+            }`}
           >
-            <a href="#contacto" className="btn-primary group w-full sm:w-auto text-center">
-              <span className="relative z-10">CONTÁCTANOS</span>
-              <div className="absolute inset-0 bg-gradient-to-r from-secondary-light to-secondary opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
-            </a>
-            <a href="#nosotros" className="btn-outline group w-full sm:w-auto text-center">
-              <span className="relative z-10">CONOCE MÁS</span>
-              <div className="absolute inset-0 bg-gradient-to-r from-secondary to-secondary-light opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
-            </a>
-          </div>
+            {/* Etiqueta */}
+            <div
+              className={`inline-flex items-center gap-2 mb-5 px-4 py-1.5 rounded-full border border-secondary/40 bg-secondary/10 backdrop-blur-sm transition-all duration-700 ${
+                isLoaded ? 'opacity-100' : 'opacity-0'
+              }`}
+            >
+              <span className="w-2 h-2 rounded-full bg-secondary animate-pulse" />
+              <span className="text-xs sm:text-sm font-semibold text-secondary tracking-wide uppercase">
+                Productora de eventos
+              </span>
+            </div>
 
-          {/* Genre icons */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 md:gap-8 max-w-xs sm:max-w-sm mx-auto sm:mx-0 mb-8">
-            {['Rock', 'Cumbia', 'Salsa', 'Folklore'].map((genre, index) => (
-              <div
-                key={genre}
-                className={`opacity-0 transform transition-all duration-500 ${isLoaded ? 'opacity-100 translate-y-0' : 'translate-y-8'
-                  }`}
-                style={{ transitionDelay: `${800 + index * 100}ms` }}
+            {/* Título */}
+            <h1
+              className={`text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold leading-[1.05] text-white mb-5 transition-all duration-1000 ${
+                isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
+              }`}
+              style={{ transitionDelay: '200ms' }}
+            >
+              CONEXIÓN <span className="text-secondary">360</span>
+              <span className="block text-xl sm:text-2xl md:text-3xl font-semibold text-gray-200 mt-3">
+                Creamos experiencias inolvidables
+              </span>
+            </h1>
+
+            {/* Descripción */}
+            <p
+              className={`text-gray-200/90 text-base sm:text-lg md:text-xl leading-relaxed max-w-2xl mb-8 transition-all duration-1000 ${
+                isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
+              }`}
+              style={{ transitionDelay: '400ms' }}
+            >
+              Líderes en la producción y organización de eventos de Rock, Cumbia, Salsa, Folklore y más.
+              Convierte tu evento en una experiencia inolvidable con nosotros.
+            </p>
+
+            {/* Botones */}
+            <div
+              className={`flex flex-col sm:flex-row gap-3 sm:gap-4 mb-10 transition-all duration-1000 ${
+                isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
+              }`}
+              style={{ transitionDelay: '600ms' }}
+            >
+              <a
+                href="#contacto"
+                className="group inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-full bg-secondary text-primary-dark font-bold shadow-lg hover:bg-secondary-light hover:-translate-y-0.5 transition-all duration-300"
               >
-                <div className="bg-white/5 backdrop-blur-sm rounded-xl p-2 md:p-4 hover:bg-white/10 transition-all duration-500 transform hover:scale-110 hover:shadow-glow group">
-                  <div className="relative">
-                    <span className="text-xl md:text-2xl">{['🎸', '💃', '🎺', '🪘'][index]}</span>
-                    <div className="absolute inset-0 bg-secondary/10 filter blur-xl scale-150 opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
-                  </div>
-                  <p className="text-xs md:text-sm text-gray-300 mt-2 font-medium">{genre}</p>
-                </div>
-              </div>
-            ))}
-          </div>
+                <span>CONTÁCTANOS</span>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-4 w-4 transition-transform group-hover:translate-x-1"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                >
+                  <path fillRule="evenodd" d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z" clipRule="evenodd" />
+                </svg>
+              </a>
+              <a
+                href="#nosotros"
+                className="inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-full border-2 border-white/30 text-white font-bold backdrop-blur-sm hover:bg-white/10 hover:border-white/60 transition-all duration-300"
+              >
+                CONOCE MÁS
+              </a>
+            </div>
 
+            {/* Géneros */}
+            <div
+              className={`flex flex-wrap gap-2 sm:gap-3 transition-all duration-1000 ${
+                isLoaded ? 'opacity-100' : 'opacity-0'
+              }`}
+              style={{ transitionDelay: '800ms' }}
+            >
+              {[
+                { emoji: '🎸', name: 'Rock' },
+                { emoji: '💃', name: 'Cumbia' },
+                { emoji: '🎺', name: 'Salsa' },
+                { emoji: '🪘', name: 'Folklore' },
+              ].map((g) => (
+                <div
+                  key={g.name}
+                  className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 backdrop-blur-sm border border-white/15 hover:bg-white/20 hover:border-secondary/40 transition-all"
+                >
+                  <span className="text-base">{g.emoji}</span>
+                  <span className="text-sm font-medium text-white">{g.name}</span>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
+
+        {/* Controles del carrusel */}
+        {slides.length > 1 && (
+          <>
+            {/* Flechas (desktop) */}
+            <button
+              onClick={prevSlide}
+              aria-label="Slide anterior"
+              className="hidden md:flex absolute left-6 lg:left-8 top-1/2 -translate-y-1/2 z-20 w-12 h-12 rounded-full bg-white/10 hover:bg-secondary hover:text-primary-dark text-white backdrop-blur-sm items-center justify-center transition-all border border-white/20"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M15 19l-7-7 7-7" />
+              </svg>
+            </button>
+            <button
+              onClick={nextSlide}
+              aria-label="Slide siguiente"
+              className="hidden md:flex absolute right-6 lg:right-8 top-1/2 -translate-y-1/2 z-20 w-12 h-12 rounded-full bg-white/10 hover:bg-secondary hover:text-primary-dark text-white backdrop-blur-sm items-center justify-center transition-all border border-white/20"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M9 5l7 7-7 7" />
+              </svg>
+            </button>
+
+            {/* Indicadores (puntos) */}
+            <div className="absolute bottom-6 md:bottom-10 left-1/2 -translate-x-1/2 z-20 flex gap-2">
+              {slides.map((_, idx) => (
+                <button
+                  key={idx}
+                  onClick={() => goToSlide(idx)}
+                  aria-label={`Ir al slide ${idx + 1}`}
+                  className={`h-1.5 rounded-full transition-all duration-500 ${
+                    idx === currentSlide ? 'w-10 bg-secondary' : 'w-6 bg-white/40 hover:bg-white/70'
+                  }`}
+                />
+              ))}
+            </div>
+          </>
+        )}
       </div>
     </section>
   );

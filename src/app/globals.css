@@ -183,6 +183,21 @@ html {
   animation: float 30s linear infinite;
 }
 
+/* Hero: Ken Burns effect - zoom y paneo lento para que el slide activo se sienta vivo */
+@keyframes kenburns {
+  0% {
+    transform: scale(1) translate3d(0, 0, 0);
+  }
+  100% {
+    transform: scale(1.12) translate3d(-1.5%, -1.5%, 0);
+  }
+}
+
+.hero-kenburns {
+  animation: kenburns 8s ease-out forwards;
+  will-change: transform;
+}
+
 /* Admin: tema claro - texto oscuro por defecto en todo el panel */
 .admin-scope,
 .admin-scope * {

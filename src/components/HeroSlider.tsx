@@ -138,7 +138,7 @@ export default function HeroSlider({ slides, autoPlayInterval = 6000 }: HeroSlid
   return (
     <div
       ref={containerRef}
-      className="relative w-full overflow-hidden bg-black"
+      className="relative w-full overflow-hidden bg-black mt-16 md:mt-20"
       style={{
         aspectRatio: isMobile ? '1 / 1' : '19 / 6',
         minHeight: isMobile ? undefined : 400,
@@ -169,29 +169,7 @@ export default function HeroSlider({ slides, autoPlayInterval = 6000 }: HeroSlid
           />
         );
 
-        const content = (
-          <>
-            {imgEl}
-            {/* Overlay gradient */}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent pointer-events-none" />
-
-            {/* Text overlay */}
-            <div
-              className={`absolute inset-x-0 bottom-0 px-6 md:px-16 pb-16 md:pb-24 text-white ${
-                isMobile ? 'text-center' : 'text-left'
-              }`}
-            >
-              <h2 className="text-3xl md:text-6xl font-bold drop-shadow-lg leading-tight">
-                {slide.title}
-              </h2>
-              {slide.subtitle && (
-                <p className="text-base md:text-xl text-white/90 mt-2 md:mt-3 drop-shadow-md max-w-2xl">
-                  {slide.subtitle}
-                </p>
-              )}
-            </div>
-          </>
-        );
+        const content = <>{imgEl}</>;
 
         return (
           <div

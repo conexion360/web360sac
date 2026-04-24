@@ -158,15 +158,24 @@ export default function HeroSlider({ slides, autoPlayInterval = 6000 }: HeroSlid
         const optimizedSrc = optimize(imgSrc, isMobile);
 
         const imgEl = (
-          <img
-            src={optimizedSrc}
-            alt={slide.title}
-            loading={isActive ? 'eager' : 'lazy'}
-            fetchPriority={isFirst ? 'high' : 'auto'}
-            decoding="async"
-            sizes="100vw"
-            className="absolute inset-0 w-full h-full object-cover"
-          />
+          <>
+            {/* Fondo borroso de la misma imagen (evita franjas) */}
+            <div
+              className="absolute inset-0 w-full h-full bg-center bg-cover scale-110"
+              style={{ backgroundImage: `url(${optimizedSrc})`, filter: 'blur(30px)', opacity: 0.6 }}
+              aria-hidden="true"
+            />
+            {/* Imagen completa centrada sin deformación */}
+            <img
+              src={optimizedSrc}
+              alt={slide.title}
+              loading={isActive ? 'eager' : 'lazy'}
+              fetchPriority={isFirst ? 'high' : 'auto'}
+              decoding="async"
+              sizes="100vw"
+              className="absolute inset-0 w-full h-full object-contain"
+            />
+          </>
         );
 
         const content = <>{imgEl}</>;

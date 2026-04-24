@@ -56,8 +56,8 @@ const HeroSection: React.FC = () => {
   const getOptimizedImageUrl = (imageUrl: string, mobile: boolean) => {
     if (!imageUrl) return '';
     return generateUrl(imageUrl, {
-      width: mobile ? 828 : 1920,
-      height: mobile ? 1472 : 1080,
+      width: mobile ? 800 : 1900,
+      height: mobile ? 800 : 600,
       quality: 85,
       format: 'webp',
       crop: 'maintain_ratio',
@@ -79,14 +79,14 @@ const HeroSection: React.FC = () => {
 
   if (loading) {
     return (
-      <section id="inicio" className="relative min-h-screen flex items-center justify-center overflow-hidden bg-primary-dark">
+      <section id="inicio" className="hero-fixed relative w-full flex items-center justify-center overflow-hidden bg-primary-dark">
         <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-secondary"></div>
       </section>
     );
   }
 
   return (
-    <section id="inicio" className="relative min-h-screen w-full overflow-hidden bg-primary-dark">
+    <section id="inicio" className="hero-fixed relative w-full overflow-hidden bg-primary-dark">
       {/* Fondo - imágenes con Ken Burns */}
       <div className="absolute inset-0 z-0">
         {slides.length > 0 ? (
@@ -113,15 +113,14 @@ const HeroSection: React.FC = () => {
           })
         ) : null}
 
-        {/* Overlay gradient: oscuro abajo y a la izquierda para legibilidad del texto */}
-        <div className="absolute inset-0 bg-gradient-to-t from-primary-dark via-primary-dark/60 to-transparent" />
-        <div className="hidden md:block absolute inset-0 bg-gradient-to-r from-primary-dark/85 via-primary-dark/40 to-transparent" />
-        <div className="md:hidden absolute inset-0 bg-primary-dark/40" />
+        {/* Overlay gradient sutil para legibilidad del texto */}
+        <div className="absolute inset-0 bg-gradient-to-t from-primary-dark/90 via-primary-dark/30 to-transparent" />
+        <div className="hidden md:block absolute inset-0 bg-gradient-to-r from-primary-dark/70 via-primary-dark/10 to-transparent" />
       </div>
 
       {/* Contenido */}
-      <div className="relative z-10 min-h-screen flex flex-col justify-end md:justify-center">
-        <div className="container mx-auto px-5 sm:px-8 lg:px-12 pb-20 md:pb-0 pt-28 md:pt-24">
+      <div className="relative z-10 w-full h-full flex flex-col justify-end md:justify-center">
+        <div className="container mx-auto px-5 sm:px-8 lg:px-12 pb-8 md:pb-0">
           <div
             className={`max-w-3xl transition-all duration-1000 ${
               isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
@@ -141,38 +140,37 @@ const HeroSection: React.FC = () => {
 
             {/* Título */}
             <h1
-              className={`text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold leading-[1.05] text-white mb-5 transition-all duration-1000 ${
+              className={`text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold leading-[1.05] text-white mb-3 md:mb-4 transition-all duration-1000 ${
                 isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
               }`}
               style={{ transitionDelay: '200ms' }}
             >
               CONEXIÓN <span className="text-secondary">360</span>
-              <span className="block text-xl sm:text-2xl md:text-3xl font-semibold text-gray-200 mt-3">
+              <span className="block text-sm sm:text-lg md:text-2xl font-semibold text-gray-200 mt-1 md:mt-2">
                 Creamos experiencias inolvidables
               </span>
             </h1>
 
-            {/* Descripción */}
+            {/* Descripción (solo desktop, en mobile el espacio es limitado) */}
             <p
-              className={`text-gray-200/90 text-base sm:text-lg md:text-xl leading-relaxed max-w-2xl mb-8 transition-all duration-1000 ${
+              className={`hidden md:block text-gray-200/90 text-base md:text-lg leading-relaxed max-w-xl mb-6 transition-all duration-1000 ${
                 isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
               }`}
               style={{ transitionDelay: '400ms' }}
             >
               Líderes en la producción y organización de eventos de Rock, Cumbia, Salsa, Folklore y más.
-              Convierte tu evento en una experiencia inolvidable con nosotros.
             </p>
 
             {/* Botones */}
             <div
-              className={`flex flex-col sm:flex-row gap-3 sm:gap-4 mb-10 transition-all duration-1000 ${
+              className={`flex flex-row gap-2 md:gap-3 transition-all duration-1000 ${
                 isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
               }`}
               style={{ transitionDelay: '600ms' }}
             >
               <a
                 href="#contacto"
-                className="group inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-full bg-secondary text-primary-dark font-bold shadow-lg hover:bg-secondary-light hover:-translate-y-0.5 transition-all duration-300"
+                className="group inline-flex items-center justify-center gap-2 px-5 md:px-7 py-2.5 md:py-3 rounded-full bg-secondary text-primary-dark font-bold text-sm md:text-base shadow-lg hover:bg-secondary-light hover:-translate-y-0.5 transition-all duration-300"
               >
                 <span>CONTÁCTANOS</span>
                 <svg
@@ -186,33 +184,10 @@ const HeroSection: React.FC = () => {
               </a>
               <a
                 href="#nosotros"
-                className="inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-full border-2 border-white/30 text-white font-bold backdrop-blur-sm hover:bg-white/10 hover:border-white/60 transition-all duration-300"
+                className="inline-flex items-center justify-center gap-2 px-5 md:px-7 py-2.5 md:py-3 rounded-full border-2 border-white/30 text-white font-bold text-sm md:text-base backdrop-blur-sm hover:bg-white/10 hover:border-white/60 transition-all duration-300"
               >
                 CONOCE MÁS
               </a>
-            </div>
-
-            {/* Géneros */}
-            <div
-              className={`flex flex-wrap gap-2 sm:gap-3 transition-all duration-1000 ${
-                isLoaded ? 'opacity-100' : 'opacity-0'
-              }`}
-              style={{ transitionDelay: '800ms' }}
-            >
-              {[
-                { emoji: '🎸', name: 'Rock' },
-                { emoji: '💃', name: 'Cumbia' },
-                { emoji: '🎺', name: 'Salsa' },
-                { emoji: '🪘', name: 'Folklore' },
-              ].map((g) => (
-                <div
-                  key={g.name}
-                  className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 backdrop-blur-sm border border-white/15 hover:bg-white/20 hover:border-secondary/40 transition-all"
-                >
-                  <span className="text-base">{g.emoji}</span>
-                  <span className="text-sm font-medium text-white">{g.name}</span>
-                </div>
-              ))}
             </div>
           </div>
         </div>

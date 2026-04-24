@@ -198,6 +198,21 @@ html {
   will-change: transform;
 }
 
+/* Hero con tamaño fijo:
+   - Mobile: cuadrado (aspect 1:1, ~800x800)
+   - Desktop: banner (aspect ~19:6, ~1900x600) */
+.hero-fixed {
+  aspect-ratio: 1 / 1;
+  max-height: 100vh;
+}
+
+@media (min-width: 768px) {
+  .hero-fixed {
+    aspect-ratio: 1900 / 600;
+    max-height: 85vh;
+  }
+}
+
 /* Admin: tema claro - texto oscuro por defecto en todo el panel */
 .admin-scope,
 .admin-scope * {
